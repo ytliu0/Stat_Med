@@ -79,13 +79,13 @@ name="two-sided" value="2" />two-sided test</p></td>
 <h3>Assumption</h3> 
     
 <p>The random variable <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> follows a normal distribution.<br />
-In particular, <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> ~ N(&mu;<sub>2</sub>-&mu;<sub>1</sub>, SE<sup>2</sup>), where SE = &radic;<span style="text-decoration:overline;">&sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub></span> is the standard error.</p>
+In particular, <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> ~ N(&mu;<sub>2</sub>-&mu;<sub>1</sub>, SE<sup>2</sup>), where SE<sup>2</sup> = &sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub> is the square of the standard error.</p>
     
 <p>The assumption is valid if <span class="var">x</span> follows a normal distribution in the two groups. If <span class="var">x</span> does not follow a normal distribution, <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> can still be approximated by a normal distribution if <span class="var">n</span><sub>1</sub> and <span class="var">n</span><sub>2</sub> are sufficiently large because of the central limit theorem. Note that we assume the population variances &sigma;<sub>1</sub><sup>2</sup> and &sigma;<sub>2</sub><sup>2</sup> are known. If not, they will have to be estimated from the sample variances and the calculation will be more complicated.</p>
 
 <h3>Variable Definition</h3>
 
-<p>Standard error SE = &radic;<span style="text-decoration:overline;">&sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub></span></p>
+<p>Standard error SE: SE<sup>2</sup> = &sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub></p>
     
 <p>Z score: z = (<span class="avg">x</span><sub>2</sub> - <span class="avg">x</span><sub>1</sub>)/SE</p>
     
