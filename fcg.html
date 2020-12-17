@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta name="keywords" content="Diabetes Screening Test" />
+<meta charset="UTF-8" />
+
+<head>
+<title>Diabetes Screening Test</title>
+<link rel="stylesheet" href="style.css">
+<script src="fcg.js"></script>
+</head>
+
+<body>
+<div id="wrapper" style="display:none;">
+    <br />
+<h1>Diabetes Screening Test</h1>
+    <br />
+<h2>Description</h2>
+<p>Most clinical tests are not 100% accurate for determining the presence of a condition. Typically, we assign some cutoff and say that test values above that cutoff are "positive" and below that are "negative". For any choice of cutoff, however, some people without the condition will get false-positive (FP) results and some with the condition will get false-negative (FN) results. The fraction of people with the condition who get true-positive (TP) results is called the sensitivity. The fraction of those without the condition that get true-negative (TN) results is called the specificity. By adjusting the cutoff, you can improve the sensitivity (fewer FNs) but at the cost of reducing the specificity (more FPs).</p>
+    
+<p>This simulation draws people randomly from a box where some have the condition and some don't. You can set those numbers. It then assigns positive or negative test results to each one, with the probabilities given by the sensitivity and specificity of the test. In this case, the condition is diabetes and the test is the fasting capillary glycemia (FCG) level.</p>
+    <br />
+<h2>ROC Curve, FCG Cutoff, Sensitivity and Specificity</h2>
+    
+<p>The following is the receiver operating characteristics (ROC) curve of the diabetes screening test using FCG. Data are taken from <i>Diabetes Care</i>, <b>17</b>, 11 (1994).</p>
+
+<table>
+<tr>
+<td>
+<canvas id="ROC" width="400" height="500">
+  CANVAS NOT SUPPORTED IN THIS BROWSER!
+</canvas>
+</td>
+    
+<td>
+    <table class="border">
+        <tr><th colspan="2">FCG cutoff = <span class="FCGcutoff"></span></th></tr>
+        <tr><td>Specificity:<br /><span class="TN"></span></td> 
+            <td>False Negative:<br /><span class="FN"></span></td></tr>
+        <tr><td>False Positive:<br /><span class="FP"></span></td> <td>Senstivity:<br /><span class="TP"></span></td></tr>
+    </table>
+</td>
+</tr>
+</table>
+
+<p>Adjust FCG cutoff to see how the TP, TN, FP and FN change: <input onmousedown="newFCGcutoff('down')" onmouseup="newFCGcutoff('up')" id="newFCGcutoff" type="range" min="3.9" max="8.9" step="0.1" style="width:400px;" /></p>
+    
+<br />
+    
+<h2>Simulation</h2>
+    
+<p>Although the sensitivity and specificity depend on the cutoff chosen, the number of TNs, FNs, TPs, and FPs you see depend also on how prevalent the condition is in the population.</p>
+    
+<p>Two other commonly asked questions are:<br />
+1. If a patient gets a positive test result, what is the chance that the patient really has diabetes? Let's denote this probability by P(Diabetes|+).<br />
+2. If a patient gets a negative test result, what is the chance that the patient doesn't have diabetes? Let's denote this probability by P(No Diabetes|-).</p>
+    
+<p>It is easy to see that<br />
+P(Diabetes|+) = True positives/total positives = NTP/(NTP + NFP)<br />
+P(No Diabetes|-) = True negatives/total negatives = NTN/(NTN + NFN)</p>
+    
+<p>Here NTP = TP&times;N<sub>diabetes</sub> is the number of true positives and N<sub>diabetes</sub> is the number of people with diabetes in the population; NFP = FP&times;N<sub>noDiabetes</sub> is the number of false positives and N<sub>noDiabetes</sub> is the number of people without diabetes in the population; NTN = TN&times;N<sub>noDiabetes</sub> is the number of true negatives and NFN = FN&times;N<sub>diabetes</sub> is the number of false negatives.</p>
+    
+<div class="borderline">
+<p><b>Parameters</b> (you can change the values and then click the submit button below):</p>
+<form name="simPara" action="" method="get">
+<p>FCG cutoff: <input type="number" id="simFCGcutoff" min="3.9" max="8.9" step="any" style="width:50px;" /> mmol/l</p>
+<p>Number of people: <input type="number" id="simnp" min="10" step="1" style="width:50px;" /></p>
+<p>Percentage of people really have diabetes: <input type="number" id="simpcond" min="0" max="100" step="any" style="width:35px;" />%</p>
+<p>Number of people really have diabetes (N<sub>diabetes</sub>): <span id="ncond"></span></p>
+</form>
+    
+<p id="err"></p>
+<p><input type="button" value="Submit" onclick="validateSimParas()" /></p>
+</div>
+  <br />
+<p>You can change the cutoff and population prevalence and rerun the simulation. Or you can keep those parameters fixed and rerun the simulation, just to see the statistical variation in the outcomes from batch to batch.</p>
+<div class="borderline">
+<table>
+    <tr>
+        <td>
+    <table class="border">
+      <tr><th colspan="3">Simulation Result</th></tr>
+        <tr><td><b>Negatives</b></td><td>True Negatives:<br /><span id="STN"></span></td> <td>False Negatives:<br /><span id="SFN"></span></td></tr>
+        <tr><td><b>Positives</b></td> <td>False Positives:<br /><span id="SFP"></span></td> <td>True Positives:<br /><span id="STP"></span></td></tr> 
+        <tr><td colspan="3">P(Diabetes|+): <span id="simpp"></span></td></tr>
+        <tr><td colspan="3">P(No Diabetes|-): <span id="simnn"></span></td></tr>
+    </table>
+        </td>
+        <td>&nbsp;&nbsp;</td>
+    <td>
+    <table class="border">
+        <tr><th colspan="2">Real Values</th></tr>
+        <tr><td>TN rate:<br /><span class="TN"></span></td> 
+            <td>FN rate:<br /><span class="FN"></span></td></tr>
+        <tr><td>FP rate:<br /><span class="FP"></span></td> <td>TP rate:<br /><span class="TP"></span></td></tr>
+        <tr><td colspan="2">P(Diabetes|+) = <span id="pp"></span></td></tr>
+        <tr><td colspan="2">P(No Diabetes|-) = <span id="nn"></span></td></tr>
+    </table>
+        </td>
+    </tr>
+</table>
+<p>Click the following button to rerun the simulation to see the statistical variation.</p>
+    <p><input type="button" value="Rerun simulation" onclick="simulation()" /></p>
+</div>
+    
+</div>
+<br />
+    
+<noscript>
+<h1>Diabetes Screening Test</h1>
+    
+<h2>Oops!</h2>
+<p>You must enable JavaScript to use this page.</p>
+<p>Please enable JavaScript and reload. </p>
+</noscript>
+    
+<script>init(0);</script>
+</body>
+</html>

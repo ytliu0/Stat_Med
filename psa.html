@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta name="keywords" content="Prostate Cancer Diagnostics" />
+<meta charset="UTF-8" />
+
+<head>
+<title>Prostate Cancer Diagnostics</title>
+<link rel="stylesheet" href="style.css">
+<script src="psa.js"></script>
+</head>
+
+<body>
+<div id="wrapper" style="display:none;">
+    <br />
+<h1>Prostate Cancer Diagnostics</h1>
+    <br />
+<h2>Description</h2>
+<p>Most clinical tests are not 100% accurate for determining the presence of a condition. Typically, we assign some cutoff and say that test values above that cutoff are "positive" and below that are "negative". For any choice of cutoff, however, some people without the condition will get false-positive (FP) results and some with the condition will get false-negative (FN) results. The fraction of people with the condition who get true-positive (TP) results is called the sensitivity. The fraction of those without the condition that get true-negative (TN) results is called the specificity. By adjusting the cutoff, you can improve the sensitivity (fewer FNs) but at the cost of reducing the specificity (more FPs).</p>
+    
+<p>This simulation draws people randomly from a box where some have the condition and some don't. You can set those numbers. It then assigns positive or negative test results to each one, with the probabilities given by the sensitivity and specificity of the test. In this case, the condition is prostate cancer (Gleason score >6) and the test is simple PSA level.</p>
+    <br />
+<h2>ROC Curve, PSA Cutoff, Sensitivity and Specificity</h2>
+    
+<p>Curve from  Operating Characteristics (ROC) of Prostate-Specific Antigen in Men With an Initial PSA Level of 3.0 ng/mL or Lower.  JAMA, <b>294</b>,  p68 (2005).</p>
+
+<table>
+<tr>
+<td>
+<canvas id="ROC" width="400" height="500">
+  CANVAS NOT SUPPORTED IN THIS BROWSER!
+</canvas>
+</td>
+    
+<td>
+    <table class="border">
+        <tr><th colspan="2">PSA cutoff = <span class="PSAcutoff"></span></th></tr>
+        <tr><td>Specificity:<br /><span class="TN"></span></td> 
+            <td>False Negative:<br /><span class="FN"></span></td></tr>
+        <tr><td>False Positive:<br /><span class="FP"></span></td> <td>Senstivity:<br /><span class="TP"></span></td></tr>
+    </table>
+</td>
+</tr>
+</table>
+
+<p>Adjust PSA cutoff to see how the TP, TN, FP and FN change: <input onmousedown="newPSAcutoff('down')" onmouseup="newPSAcutoff('up')" id="newPSAcutoff" type="range" min="0.0" max="10.1" step="0.1" style="width:400px;" /></p>
+    
+<br />
+    
+<h2>Simulation</h2>
+<!--  
+<p>Suppose PSA screening tests are performed on <span class="ntests"></span> people using a PSA cutoff value of <span class="PSAcutoff"></span> to decide if a patient is likely to have a prostate cancer. Suppose <span class="hasCancer"></span> of the <span class="ntests"></span> people really have prostate cancers. Based on the specificity and sensitive values shown above, how many of them will get positives? How many are false positives? Let's perform a simulation to find out.</p>
+    
+<p>In the following simulation, each of the <span class="hasCancer"></span> people with prostate cancer is randomly assigned a positive test result with a probability of <span class="TP"></span> (true positive rate); each of the <span class="noCancer"></span> people without prostate cancer is randomly assigned a positive test result with a probability of <span class="FP"></span> (false positive rate).</p>
+-->
+    
+<p>Although the sensitivity and specificity depend on the cutoff chosen, the number of TNs, FNs, TPs, and FPs you see depend also on how prevalent the condition is in the population.</p>
+    
+<p>Two other commonly asked questions are:<br />
+1. If a patient gets a positive test result, what is the chance that the patient really has cancer? Let's denote this probability by P(Cancer|+).<br />
+2. If a patient gets a negative test result, what is the chance that the patient doesn't have cancer? Let's denote this probability by P(No Cancer|-).</p>
+    
+<p>It is easy to see that<br />
+P(Cancer|+) = True positives/total positives = NTP/(NTP + NFP)<br />
+P(No Cancer|-) = True negatives/total negatives = NTN/(NTN + NFN)</p>
+<p>Here NTP = TP&times;N<sub>cancer</sub> is the number of true positives and N<sub>cancer</sub> is the number of people with prostate cancer in the population; NFP = FP&times;N<sub>noCancer</sub> is the number of false positives and N<sub>noCancer</sub> is the number of people without prostate cancer in the population; NTN = TN&times;N<sub>noCancer</sub> is the number of true negatives and NFN = FN&times;N<sub>cancer</sub> is the number of false negatives.</p>
+    
+<div class="borderline">
+<p><b>Parameters</b> (you can change the values and then click the submit button below):</p>
+<form name="simPara" action="" method="get">
+<p>PSA cutoff: <input type="number" id="simPSAcutoff" min="0" max="10.1" step="any" style="width:50px;" /> ng/mL</p>
+<p>Number of people: <input type="number" id="simnp" min="10" step="1" style="width:50px;" /></p>
+<p>Percentage of people really have prostate cancers: <input type="number" id="simpcancer" min="0" max="100" step="any" style="width:35px;" />%</p>
+<p>Number of people really have prostate cancers (N<sub>cancer</sub>): <span id="ncancer"></span></p>
+</form>
+    
+<p id="err"></p>
+<p><input type="button" value="Submit" onclick="validateSimParas()" /></p>
+</div>
+  <br />
+<p>You can change the cutoff and population prevalence and rerun the simulation. Or you can keep those parameters fixed and rerun the simulation, just to see the statistical variation in the outcomes from batch to batch.</p>
+<div class="borderline">
+<table>
+    <tr>
+        <td>
+    <table class="border">
+      <tr><th colspan="3">Simulation Result</th></tr>
+        <tr><td><b>Negatives</b></td><td>True Negatives:<br /><span id="STN"></span></td> <td>False Negatives:<br /><span id="SFN"></span></td></tr>
+        <tr><td><b>Positives</b></td> <td>False Positives:<br /><span id="SFP"></span></td> <td>True Positives:<br /><span id="STP"></span></td></tr> 
+        <tr><td colspan="3">P(Cancer|+): <span id="simpp"></span></td></tr>
+        <tr><td colspan="3">P(No Cancer|-): <span id="simnn"></span></td></tr>
+    </table>
+        </td>
+        <td>&nbsp;&nbsp;</td>
+    <td>
+    <table class="border">
+        <tr><th colspan="2">Real Values</th></tr>
+        <tr><td>TN rate:<br /><span class="TN"></span></td> 
+            <td>FN rate:<br /><span class="FN"></span></td></tr>
+        <tr><td>FP rate:<br /><span class="FP"></span></td> <td>TP rate:<br /><span class="TP"></span></td></tr>
+        <tr><td colspan="2">P(Cancer|+) = <span id="pp"></span></td></tr>
+        <tr><td colspan="2">P(No Cancer|-) = <span id="nn"></span></td></tr>
+    </table>
+        </td>
+    </tr>
+</table>
+<p>Click the following button to rerun the simulation to see the statistical variation.</p>
+    <p><input type="button" value="Rerun simulation" onclick="simulation()" /></p>
+</div>
+    
+</div>
+<br />
+<noscript>
+<h1>Prostate Cancer Diagnostics</h1>
+    
+<h2>Oops!</h2>
+<p>You must enable JavaScript to use this page.</p>
+<p>Please enable JavaScript and reload. </p>
+</noscript>
+    
+<script>init(0);</script>
+</body>
+</html>

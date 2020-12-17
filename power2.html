@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta name="keywords" content="power calculation" />
+<meta charset="UTF-8" />
+
+<head>
+<title>Simple Power Calculation for Two-Sample Z Test</title>
+<script src="power2.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <br />
+<div id="wrapper" style="display:none;">
+
+<h1>Simple Power Calculation for Two-Sample Z Test</h1>
+
+<br />
+<p>Description: Let &mu;<sub>1</sub> and &mu;<sub>2</sub> be the population means of a variable <span class="var">x</span> in two groups. They are not known but can be estimated by the sample means <span class="avg">x</span><sub>1</sub> and <span class="avg">x</span><sub>2</sub>. Assume the population variances &sigma;<sub>1</sub><sup>2</sup> and &sigma;<sub>2</sub><sup>2</sup> of the two groups are known. The following two hypotheses about &mu;<sub>2</sub>-&mu;<sub>1</sub> will be tested. Calculate the power of the test as a function of the sample size for group 1 (<span class="var">n</span><sub>1</sub>), sample size for group 2 (<span class="var">n</span><sub>2</sub>), and the null cutoff <span class="greek">&alpha;</span>.</p>
+
+<form name="hypotheses" action="" method="get">
+<table border="1" cellpadding="10" style="border-collapse:collapse">
+<tr><th>Hypothesis</th> <th>Difference in Population Means</th> <th>Population SDs</th></tr>
+<tr><td>Null Hypothesis H<sub>0</sub></td> 
+<td>&mu;<sub>2</sub> - &mu;<sub>1</sub> = 0</td> <td rowspan="2"><p>&sigma;<sub>1</sub> = <input type="number" id="sigma1" name="sigma1" step="any" /></p>
+<p>&sigma;<sub>2</sub> = <input type="number" id="sigma2" name="sigma2" step="any" /></p></td></tr>
+<tr><td>Alternative Hypothesis H<sub>A</sub></td> <td>&mu;<sub>2</sub> - &mu;<sub>1</sub> = <input type="number" id="dmu" name="dmu" step="any" /></td></tr>
+</table>
+
+<p><input type="button" name="hypo" value="Change parameters in the table and then click this button to submit" onclick="validateHypothesesParas()" /></p>
+</form>
+
+
+<p id="output"></p>
+<hr />
+<h2>Calculate Power from <span class="greek">&alpha;</span>, <span class="var">n</span><sub>1</sub> and <span class="var">n</span><sub>2</sub></h2>
+<br />
+<canvas id="graph" width="535" height="300">
+  CANVAS NOT SUPPORTED IN THIS BROWSER!
+</canvas>
+    
+<table cellpadding="15">
+<tr><th>Option</th> <th>Sample Size</th> <th>Type I error</th> <th>Type II error</th> <th>Power</th>
+    </tr>
+<tr><td rowspan="2"><p><input onchange="changeLockn(1)" type="radio" id="lockn" 
+name="lockn" value="1" />lock <span class="var">n</span><sub>1</sub> = <span class="var">n</span><sub>2</sub></p>
+<p><input onchange="changeLockn(0)" type="radio" id="ulockn"
+name="ulockn" value="2" />unlock <span class="var">n</span><sub>1</sub> = <span class="var">n</span><sub>2</sub></p></td>
+    <td style="text-align:center;"><input onmousedown="newN('down',1)" onmouseup="newN('up',1)" id="n1Input" type="range" step="1" /> <br />
+    <span class="var">n</span><sub>1</sub> = <span id="n1"></span></td>
+    <td><input onmousedown="newAlpha('down')" onmouseup="newAlpha('up')" id="alphaInput" type="range" step="1" /></td>
+    <td rowspan="2"><span class="greek">&beta;</span> = <span id="beta"></span></td>
+    <td rowspan="2">power = 1-<span class="greek">&beta;</span> = <span id="power"></span></td>
+</tr>
+
+<tr>
+    <td style="text-align:center;"><input onmousedown="newN('down',2)" onmouseup="newN('up',2)" id="n2Input" type="range" step="1" /> <br />
+    <span class="var">n</span><sub>2</sub> = <span id="n2"></span></td>
+    <td style="text-align:center;"><span class="greek">&alpha;</span> = <span id="alpha"></span></td>
+</tr>
+    
+<tr>
+    <td><p><input onchange="changeTestType(1)" type="radio" id="testType1" 
+name="one-sided" value="1" />one-sided test</p>
+<p><input onchange="changeTestType(2)" type="radio" id="testType2"
+name="two-sided" value="2" />two-sided test</p></td>
+    <td style="text-align:center;">SE = <span id="SE"></span></td>
+    <td style="text-align:center;">Z<sub><span class= "greek">&alpha;</span></sub> = <span id="Zalpha"></span></td>
+    <td style="text-align:center;">Z<sub><span class= "greek">&beta;</span></sub> = <span id="Zbeta"></span></td>
+    <td style="text-align:center;">Effect size D = <span id="Deffect"></span><br />
+    D<sub>z</sub> = <span id="Dz"></span></td> 
+</tr>
+</table>
+
+<br />
+<hr />    
+<h2>Assumption and Variable Definition</h2>
+
+<h3>Assumption</h3> 
+    
+<p>The random variable <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> follows a normal distribution.<br />
+In particular, <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> ~ N(&mu;<sub>2</sub>-&mu;<sub>1</sub>, SE<sup>2</sup>), where SE = &radic;<span style="text-decoration:overline;">&sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub></span> is the standard error.</p>
+    
+<p>The assumption is valid if <span class="var">x</span> follows a normal distribution in the two groups. If <span class="var">x</span> does not follow a normal distribution, <span class="avg">x</span><sub>2</sub>-<span class="avg">x</span><sub>1</sub> can still be approximated by a normal distribution if <span class="var">n</span><sub>1</sub> and <span class="var">n</span><sub>2</sub> are sufficiently large because of the central limit theorem. Note that we assume the population variances &sigma;<sub>1</sub><sup>2</sup> and &sigma;<sub>2</sub><sup>2</sup> are known. If not, they will have to be estimated from the sample variances and the calculation will be more complicated.</p>
+
+<h3>Variable Definition</h3>
+
+<p>Standard error SE = &radic;<span style="text-decoration:overline;">&sigma;<sub>1</sub><sup>2</sup>/<span class="var">n</span><sub>1</sub> + &sigma;<sub>2</sub><sup>2</sup>/<span class="var">n</span><sub>2</sub></span></p>
+    
+<p>Z score: z = (<span class="avg">x</span><sub>2</sub> - <span class="avg">x</span><sub>1</sub>)/SE</p>
+    
+<p>Effect size D = hypothesized value of |&mu;<sub>2</sub> - &mu;<sub>1</sub>| assuming H<sub>A</sub></p>
+    
+<p><span class="greek">&alpha;</span>: probability of Type I error = area of the shaded red region in the graph.</p>
+    
+<p>Z<sub><span class= "greek">&alpha;</span></sub> = Z score of the null cutoff point. For a two-sided test, Z<sub><span class= "greek">&alpha;</span></sub> is the Z score of the null cutoff point closest to the hypothesized value of &mu;<sub>2</sub> - &mu;<sub>1</sub> assuming H<sub>A</sub>.</p>
+    
+<p>Z<sub>A</sub> = hypothesized value of (&mu;<sub>2</sub> - &mu;<sub>1</sub>)/SE assuming H<sub>A</sub> = Z score of the hypothesized &mu;<sub>2</sub> - &mu;<sub>1</sub> assuming H<sub>A</sub></p>
+    
+<p>Z<sub><span class= "greek">&beta;</span></sub> = Z<sub><span class= "greek">&alpha;</span></sub> - Z<sub>A</sub> = Z score of the null cutoff point measured from <span class="var">z</span> = Z<sub>A</sub></p>
+    
+<p><span class="greek">&beta;</span> = probability of Type II error = area of the shaded skyblue region in the graph</p>
+    
+<p>D<sub>z</sub> = |Z<sub>A</sub>| = scaled effect size</p>
+<br /><br />
+</div>
+    
+<noscript>
+<h1>Simple Power Calculation for Two-Sample Z Test</h1>
+    
+<h2>Oops!</h2>
+<p>You must enable JavaScript to use this page.</p>
+<p>Please enable JavaScript and reload. </p>
+</noscript>
+    
+<script>init(0);</script>
+</body>
+</html>
