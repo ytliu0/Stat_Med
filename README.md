@@ -1,6 +1,6 @@
 # Visualizing Statistics in Medical Contexts
 
-Several visualizion modules have be created to help students to visualize how the common statistical analysis methods are used in practicing medicine.
+Several visualizion modules have been created to help students to visualize how the common statistical analysis methods are used in practicing medicine.
 
 ## Simple Power Calculation
 
