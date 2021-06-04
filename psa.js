@@ -1,20 +1,20 @@
 "use strict";
 
 // Set global arrays for plotting the ROC curve
-var sen_arr=[], fp_arr=[];
+let sen_arr=[], fp_arr=[];
 
 function init() {
     document.getElementById("wrapper").style.display = "block";
     // Initialize the global arrays
-    var n = 201; // Number of points in the ROC curve
-    var dx = 10.1/(n-1);
-    for (var i=0; i<n; i++) {
-        var psa = i*dx;
+    let n = 201; // Number of points in the ROC curve
+    let dx = 10.1/(n-1);
+    for (let i=0; i<n; i++) {
+        let psa = i*dx;
         sen_arr.push(1.0 - Fpos(psa));
         fp_arr.push(1.0 - Fneg(psa));
     }
     
-    var psa = 4.1;
+    let psa = 4.1;
     document.getElementById("newPSAcutoff").value = psa;
     // set the default simulation parameters
     document.getElementById("simPSAcutoff").value = psa;
@@ -26,16 +26,16 @@ function init() {
 
 // Draw ROC curve
 function drawROC(canvasId, PSAcut) {
-    var canvas = document.getElementById(canvasId);
-    var ctx = canvas.getContext('2d');
-    var width = canvas.width, height = canvas.height;
+    let canvas = document.getElementById(canvasId);
+    let ctx = canvas.getContext('2d');
+    let width = canvas.width, height = canvas.height;
     ctx.clearRect(0, 0, width, height);
     
     // Draw plot boundary box
-    var facx = 0.8, facy = 0.85;
-    var gwidth = facx*width, gheight = facy*height;
-    var xstart = (0.97-facx)*width;
-    var ystart = 0.03*height;
+    let facx = 0.8, facy = 0.85;
+    let gwidth = facx*width, gheight = facy*height;
+    let xstart = (0.97-facx)*width;
+    let ystart = 0.03*height;
     ctx.rect(xstart, ystart, facx*width, facy*height);
     ctx.stroke();
     // test
@@ -44,9 +44,9 @@ function drawROC(canvasId, PSAcut) {
     
     // Draw ROC curve
     ctx.beginPath();
-    var x = xstart + fp_arr[0]*gwidth;
-    var y = ystart + (1 - sen_arr[0])*gheight;
-    var i;
+    let x = xstart + fp_arr[0]*gwidth;
+    let y = ystart + (1 - sen_arr[0])*gheight;
+    let i;
     ctx.moveTo(x, y);
     for (i=1; i<sen_arr.length; i++) {
         x = xstart + fp_arr[i]*gwidth;
@@ -64,9 +64,9 @@ function drawROC(canvasId, PSAcut) {
     ctx.fill();
     
     // Draw axis ticks
-    var txt;
-    var nx = 11;
-    var dx = 1.0/(nx-1);
+    let txt;
+    let nx = 11;
+    let dx = 1.0/(nx-1);
     y = ystart + gheight;
     ctx.font = "15px Arial";
     ctx.fillStyle = "black";
@@ -77,11 +77,11 @@ function drawROC(canvasId, PSAcut) {
         ctx.lineTo(x,y+7);
         ctx.stroke(); 
         txt = (i*dx).toFixed(1);
-        var w = ctx.measureText(txt).width;
+        let w = ctx.measureText(txt).width;
         ctx.fillText(txt, x-0.5*w, y+22); 
     }
-    var ny = 11;
-    var dy = 1.0/(ny-1);
+    let ny = 11;
+    let dy = 1.0/(ny-1);
     x = xstart;
     for (i=0; i<ny; i++) {
         y = ystart + (1 - i*dy)*gheight;
@@ -109,20 +109,24 @@ function drawROC(canvasId, PSAcut) {
 // when the mouse is up, remove the event listener for mousemove.
 // Thus calculation is performed when the user drags the mouse.
 function newPSAcutoff(event) {
+    let slider = document.getElementById("newPSAcutoff");
     if (event=="up") {
-       document.getElementById("newPSAcutoff").removeEventListener("mousemove",setNewPSAcutoff);
+       slider.setAttribute('movelistener', 'off');
        setNewPSAcutoff();
        simulation();
     } else if (event=="down") {
-       document.getElementById("newPSAcutoff").addEventListener("mousemove",setNewPSAcutoff);
+       slider.setAttribute('movelistener', 'on');
+    } else if (event=='move' && slider.getAttribute('movelistener')=='on') {
+       setNewPSAcutoff();
+       simulation();
     }
 }
 
 function setNewPSAcutoff() {
-    var psa = parseFloat(document.getElementById("newPSAcutoff").value);
-    var txt = psa.toFixed(1)+" ng/mL";
+    let psa = parseFloat(document.getElementById("newPSAcutoff").value);
+    let txt = psa.toFixed(1)+" ng/mL";
     assignValClass("PSAcutoff",txt);
-    var tn = Fneg(psa), tp = 1-Fpos(psa);
+    let tn = Fneg(psa), tp = 1-Fpos(psa);
     txt = (tn*100).toFixed(1)+"%";
     assignValClass("TN",txt);
     txt = (100-tp*100).toFixed(1)+"%";
@@ -131,14 +135,14 @@ function setNewPSAcutoff() {
     assignValClass("TP",txt);
     txt = (100-tn*100).toFixed(1)+"%";
     assignValClass("FP",txt);
-    var np = parseInt(document.getElementById("simnp").value);
-    var ncancer = parseInt(document.getElementById("ncancer").innerHTML);
-    var nNoCancer = np - ncancer;
-    var ntp = ncancer*tp;
-    var nfp = nNoCancer*(1-tn);
-    var ntn = nNoCancer*tn;
-    var nfn = ncancer*(1-tp);
-    var pp = 100*ntp/(ntp + nfp), nn = 100*ntn/(ntn + nfn);
+    let np = parseInt(document.getElementById("simnp").value);
+    let ncancer = parseInt(document.getElementById("ncancer").innerHTML);
+    let nNoCancer = np - ncancer;
+    let ntp = ncancer*tp;
+    let nfp = nNoCancer*(1-tn);
+    let ntn = nNoCancer*tn;
+    let nfn = ncancer*(1-tp);
+    let pp = 100*ntp/(ntp + nfp), nn = 100*ntn/(ntn + nfn);
     document.getElementById("pp").innerHTML = pp.toFixed(1)+"%";
     document.getElementById("nn").innerHTML = nn.toFixed(1)+"%";
     drawROC("ROC",psa);
@@ -148,14 +152,14 @@ function setNewPSAcutoff() {
 // Function to validate the simulation parameters and then 
 // perform the simulation
 function validateSimParas() {
-    var x = document.forms["simPara"];
-    var psa = parseFloat(x["simPSAcutoff"].value);
-    var np = parseInt(x["simnp"].value);
-    var pcancer = parseFloat(x["simpcancer"].value);
-    var errid = "err";
+    let x = document.forms["simPara"];
+    let psa = parseFloat(x["simPSAcutoff"].value);
+    let np = parseInt(x["simnp"].value);
+    let pcancer = parseFloat(x["simpcancer"].value);
+    let errid = "err";
     document.getElementById(errid).innerHTML = "";
-    var min = 0.0, max = 10.1;
-    var message = "Invalid input for PSA cutoff! Please enter a number between "+min+" and "+max+".";
+    let min = 0.0, max = 10.1;
+    let message = "Invalid input for PSA cutoff! Please enter a number between "+min+" and "+max+".";
     sanityCheck(psa,"simPSAcutoff",min,max,message,errid);
     min = 10; max = 10000;
     message = "Invalid input for number of people! Please enter an integer between "+min+" and "+max+".";
@@ -168,7 +172,7 @@ function validateSimParas() {
     
     if (document.getElementById(errid).innerHTML == "") {
         psa = 0.1*Math.floor(psa*10 + 0.5);
-        var ncancer = Math.floor(0.01*pcancer*np + 0.5);
+        let ncancer = Math.floor(0.01*pcancer*np + 0.5);
         document.getElementById("ncancer").innerHTML = ncancer;
         pcancer = ncancer/np*100;
         //assignValClass("ntests",np);
@@ -184,22 +188,22 @@ function validateSimParas() {
 
 // Simulation
 function simulation() {
-    var PSAcutoff = parseFloat(document.getElementById("simPSAcutoff").value);
-    var np = parseInt(document.getElementById("simnp").value);
-    var ncancer = parseInt(document.getElementById("ncancer").innerHTML);
-    var ftp = 1 - Fpos(PSAcutoff); // true positive rate
-    var ffp = 1 - Fneg(PSAcutoff); // false positive rate
+    let PSAcutoff = parseFloat(document.getElementById("simPSAcutoff").value);
+    let np = parseInt(document.getElementById("simnp").value);
+    let ncancer = parseInt(document.getElementById("ncancer").innerHTML);
+    let ftp = 1 - Fpos(PSAcutoff); // true positive rate
+    let ffp = 1 - Fneg(PSAcutoff); // false positive rate
     
     // compute simulated # of true positives and false positives
-    var fp = 0, tp = 0, i;
-    var nNoCancer = np - ncancer;
+    let fp = 0, tp = 0, i;
+    let nNoCancer = np - ncancer;
     for (i=0; i<ncancer; i++) {
         if (Math.random() < ftp) { tp++;}
     }
     for (i=0; i<nNoCancer; i++) {
         if (Math.random() < ffp) { fp++;}
     }
-    var txt1 = tp, txt2 = ncancer-tp;
+    let txt1 = tp, txt2 = ncancer-tp;
     if (ncancer > 0) {
         txt1 += " ("+(100.0*tp/ncancer).toFixed(1)+"%)";
         txt2 += " ("+(100 - 100.0*tp/ncancer).toFixed(1)+"%)";
@@ -213,7 +217,7 @@ function simulation() {
     }
     document.getElementById("SFP").innerHTML = txt1;
     document.getElementById("STN").innerHTML = txt2;
-    var pp = 100.0*tp/(tp + fp), nn = 100.0*(nNoCancer-fp)/(np-fp-tp);
+    let pp = 100.0*tp/(tp + fp), nn = 100.0*(nNoCancer-fp)/(np-fp-tp);
     document.getElementById("simpp").innerHTML = pp.toFixed(1)+"%";
     document.getElementById("simnn").innerHTML = nn.toFixed(1)+"%";
 }
@@ -223,17 +227,17 @@ function simulation() {
 // xa must be in ascending order. 
 // This function won't check that.
 function cubicHermite(x, xa, ya, m) {
-    var i;
+    let i;
     for (i=0; i<xa.length; i++) {
         if (x <= xa[i]) { break;}
     }
-    var h = xa[i]-xa[i-1];
-    var t = (x - xa[i-1])/h;
-    var f1_t2 = (1-t)*(1-t);
-    var h00 = (1+2*t)*f1_t2;
-    var h10 = t*f1_t2;
-    var h01 = t*t*(3-2*t);
-    var h11 = t*t*(t-1);
+    let h = xa[i]-xa[i-1];
+    let t = (x - xa[i-1])/h;
+    let f1_t2 = (1-t)*(1-t);
+    let h00 = (1+2*t)*f1_t2;
+    let h10 = t*f1_t2;
+    let h01 = t*t*(3-2*t);
+    let h11 = t*t*(t-1);
     return ya[i-1]*h00 + h*m[i-1]*h10 + ya[i]*h01 + h*m[i]*h11;
 }
 
@@ -244,19 +248,19 @@ function cubicHermite(x, xa, ya, m) {
 // x: PSA level in ng/mL
 function Fpos(x) {
     // Data from Table 3
-    var xa = [1.1,1.6,2.1,2.6,3.1,4.1,6.1,8.1,10.1];
-    var ya = [0.166, 0.33, 0.474, 0.595, 0.678, 0.795, 0.954, 0.983, 0.991];
-    var m = [0.328, 0.308, 0.265, 0.204, 0.1415, 0.09825, 0.04268125383365261, 
+    let xa = [1.1,1.6,2.1,2.6,3.1,4.1,6.1,8.1,10.1];
+    let ya = [0.166, 0.33, 0.474, 0.595, 0.678, 0.795, 0.954, 0.983, 0.991];
+    let m = [0.328, 0.308, 0.265, 0.204, 0.1415, 0.09825, 0.04268125383365261, 
              0.008400033999176321, 0.004];
     
-    var F = 0;
-    var x1 = xa[0], x2 = xa[xa.length-1];
+    let F = 0;
+    let x1 = xa[0], x2 = xa[xa.length-1];
     
     if (x <= x1) {
         if (x > 0) {
           // Use fitting curve F=x^2(ax+b)
-          var a = 0.1133884297520663;
-          var b = 0.02163786626596526;
+          let a = 0.1133884297520663;
+          let b = 0.02163786626596526;
           F = x*x*(a + b*x);   
         }
     } else if (x >= x2) {
@@ -276,19 +280,19 @@ function Fpos(x) {
 // x: PSA level in ng/mL
 function Fneg(x) {
     // Data from Table 3
-    var xa = [1.1,1.6,2.1,2.6,3.1,4.1,6.1,8.1,10.1];
-    var ya = [0.389,0.587,0.725,0.811,0.867,0.938,0.985,0.994,0.997];
-    var m = [0.396, 0.336, 0.224, 0.142, 0.0915, 0.04725, 0.01320033259004504, 
+    let xa = [1.1,1.6,2.1,2.6,3.1,4.1,6.1,8.1,10.1];
+    let ya = [0.389,0.587,0.725,0.811,0.867,0.938,0.985,0.994,0.997];
+    let m = [0.396, 0.336, 0.224, 0.142, 0.0915, 0.04725, 0.01320033259004504, 
          0.002828642697866794, 0.0015];
     
-    var F = 0;
-    var x1 = xa[0], x2 = xa[xa.length-1];
+    let F = 0;
+    let x1 = xa[0], x2 = xa[xa.length-1];
     
     if (x <= x1) {
         if (x > 0) {
            // Use fitting curve F=x^2(ax+b)
-           var a = 0.6044628099173553;
-           var b = -0.2572501878287002;
+           let a = 0.6044628099173553;
+           let b = -0.2572501878287002;
            F = x*x*(a + b*x);
         }
     } else if (x >= x2) {
@@ -308,15 +312,15 @@ function sanityCheck(x,inputId,min,max,message,errid) {
     document.getElementById(inputId).style.backgroundColor = "transparent";
     if (isNaN(x) || x < min || x > max) {
         document.getElementById(inputId).style.backgroundColor = "#e2a8a8";
-        var text = '<p style="color:red;">'+message+'</p>';
+        let text = '<p style="color:red;">'+message+'</p>';
         document.getElementById(errid).innerHTML += text;
     }
 }
 
 // Assign value to a class
 function assignValClass(classid, val) {
-    var x = document.getElementsByClassName(classid);
-    for (var i=0; i < x.length; i++) {
+    let x = document.getElementsByClassName(classid);
+    for (let i=0; i < x.length; i++) {
         x[i].innerHTML = val;
     }
 }

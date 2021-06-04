@@ -1,11 +1,11 @@
 "use strict";
 
-var absZalp; // set global variable to store the value of |Z_alpha|
-var n1, n2;       // sample size
-var dmu, sigma1, sigma2, alpha, SE, Deffect, testType;
-var lockn; // lock n1=n2 ?
+let absZalp; // set global variable to store the value of |Z_alpha|
+let n1, n2;       // sample size
+let dmu, sigma1, sigma2, alpha, SE, Deffect, testType;
+let lockn; // lock n1=n2 ?
 // values of alpha (in %) for the alpha input range
-var alpha_table = [0.01, 0.05, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
+let alpha_table = [0.01, 0.05, 0.1, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5,
                    6, 7, 8,  9, 10, 15, 20, 30, 40, 50];
 
 function init() {
@@ -19,7 +19,7 @@ function init() {
   // Set default value of alpha and set the input range
   document.getElementById("alphaInput").min = 0;
   document.getElementById("alphaInput").max = alpha_table.length-1;
-  var ind = 12;
+  let ind = 12;
   document.getElementById("alphaInput").value = ind; 
   document.getElementById("alpha").innerHTML = alpha_table[ind].toPrecision(2)+"%"; 
   document.getElementById("testType1").checked = true;
@@ -35,11 +35,11 @@ function init() {
 // Then set the value of n so that beta(alpha=5%, n) \approx 20%.
 // Display the results.
 function validateHypothesesParas() {
-    var x = document.forms["hypotheses"];
+    let x = document.forms["hypotheses"];
     dmu = parseFloat(x["dmu"].value);
     sigma1 = parseFloat(x["sigma1"].value);
     sigma2 = parseFloat(x["sigma2"].value);
-    var text, err = false;
+    let text, err = false;
     if (isNaN(dmu)) {
         text = "Invalid input! You entered a non-numerical value for &mu;<sub>0</sub>!"
         err = true;
@@ -100,22 +100,22 @@ function validateHypothesesParas() {
         alpha = parseInt(document.getElementById("alphaInput").value);
         alpha = alpha_table[alpha];
         absZalp = qnorm(alpha*0.01/testType);
-        var Dz = Deffect/SE;
-        var Zbet = absZalp - Dz;
-        var beta = pnorm(-Zbet)*100;
+        let Dz = Deffect/SE;
+        let Zbet = absZalp - Dz;
+        let beta = pnorm(-Zbet)*100;
         if (testType==2) {
             beta = beta - 100*pnorm(absZalp+Dz);
         }
-        var power = 100-beta;
-        var Zalp=absZalp;
+        let power = 100-beta;
+        let Zalp=absZalp;
         if (dmu < 0) {
             Zalp = -Zalp;
             Zbet = -Zbet;
         }
         // set maximum n1, n2 so that |Z_A| = |muA-mu0|/SE \approx 6
-        var nmax = setN(Deffect,sigma1, sigma2, 6);
+        let nmax = setN(Deffect,sigma1, sigma2, 6);
         // set minimum n1, n2 so that Z_A = |muA-mu0|/SE \approx 1
-        var nmin = setN(Deffect,sigma1, sigma2, 1);
+        let nmin = setN(Deffect,sigma1, sigma2, 1);
         document.getElementById("n1Input").max = nmax;
         document.getElementById("n1Input").min = nmin;
         document.getElementById("n1Input").value = n1;
@@ -140,7 +140,7 @@ function validateHypothesesParas() {
 // Set n so that |Z_A| = D/SE \approx Za
 // Here D = |dmu|
 function setN(D,sigma1i,sigma2i,Za) {
-    var ni = Za/D;
+    let ni = Za/D;
     ni = Math.ceil(ni*ni*(sigma1i*sigma1i + sigma2i*sigma2i));
     ni = Math.max(ni, 25); // limit n >= 25
     return(ni);
@@ -151,11 +151,14 @@ function setN(D,sigma1i,sigma2i,Za) {
 // when the mouse is up, remove the event listener for mousemove.
 // Thus calculation is performed when the user drags the mouse.
 function newAlpha(event) {
+    let slider = document.getElementById("alphaInput");
     if (event=="up") {
-       document.getElementById("alphaInput").removeEventListener("mousemove",setNewAlpha); 
+       slider.setAttribute('movelistener', 'off');
        setNewAlpha();
     } else if (event=="down") {
-       document.getElementById("alphaInput").addEventListener("mousemove",setNewAlpha);
+        slider.setAttribute('movelistener', 'on');
+    } else if (event=='move' && slider.getAttribute('movelistener')=='on') {
+        setNewAlpha();
     }
 }
 
@@ -165,35 +168,41 @@ function newAlpha(event) {
 // Thus calculation is performed when the user drags the mouse.
 function newN(event,n_button) {
     if (n_button==1) {
+       let slider = document.getElementById("n1Input")
        if (event=="up") {
-          document.getElementById("n1Input").removeEventListener("mousemove",setNewN1); 
+          slider.setAttribute('movelistener', 'off');
           setNewN1();
        } else if (event=="down") {
-          document.getElementById("n1Input").addEventListener("mousemove",setNewN1);
-       }    
+          slider.setAttribute('movelistener', 'on');
+       } else if (event=='move' && slider.getAttribute('movelistener')=='on') {
+          setNewN1();
+       }
     } else {
+       let slider = document.getElementById("n2Input")
        if (event=="up") {
-          document.getElementById("n2Input").removeEventListener("mousemove",setNewN2); 
+          slider.setAttribute('movelistener', 'off');
           setNewN2();
        } else if (event=="down") {
-          document.getElementById("n2Input").addEventListener("mousemove",setNewN2);
-       }  
+          slider.setAttribute('movelistener', 'on');
+       } else if (event=='move' && slider.getAttribute('movelistener')=='on') {
+          setNewN2();
+     }
     }
 }
 
 // Change alpha and update the outputs
 function setNewAlpha() {
-      alpha = parseInt(document.getElementById("alphaInput").value);
+      alpha = parseInt(document.getElementById("alphaInput").value, 10);
       alpha = alpha_table[alpha];
       absZalp = qnorm(alpha*0.01/testType);
-      var Dz = Deffect/SE;
-      var Zbet = absZalp - Dz;
-      var beta = pnorm(-Zbet)*100;
+      let Dz = Deffect/SE;
+      let Zbet = absZalp - Dz;
+      let beta = pnorm(-Zbet)*100;
       if (testType==2) {
           beta = beta - 100*pnorm(absZalp+Dz);
       }
-      var power = 100-beta;
-      var Zalp=absZalp;
+      let power = 100-beta;
+      let Zalp=absZalp;
       if (dmu < 0) {
           Zalp = -Zalp;
           Zbet = -Zbet;
@@ -209,7 +218,7 @@ function setNewAlpha() {
 
 // Change n and update the outputs
 function setNewN1() {
-    n1 = parseInt(document.getElementById("n1Input").value);
+    n1 = parseInt(document.getElementById("n1Input").value, 10);
     if (lockn) {
         document.getElementById("n2Input").value = n1;
         n2=n1;
@@ -218,7 +227,7 @@ function setNewN1() {
 }
 
 function setNewN2() {
-    n2 = parseInt(document.getElementById("n2Input").value);
+    n2 = parseInt(document.getElementById("n2Input").value, 10);
     if (lockn) {
         document.getElementById("n1Input").value = n2;
         n1=n2;
@@ -228,14 +237,14 @@ function setNewN2() {
 
 function setNewN() {
     SE = Math.sqrt(sigma1*sigma1/n1 + sigma2*sigma2/n2);
-    var Dz = Deffect/SE;
-    var Zbet = absZalp - Dz;
-    var beta = pnorm(-Zbet)*100;
+    let Dz = Deffect/SE;
+    let Zbet = absZalp - Dz;
+    let beta = pnorm(-Zbet)*100;
     if (testType==2) {
         beta = beta - 100*pnorm(absZalp+Dz);
     }
-    var power = 100-beta;
-    var Zalp=absZalp;
+    let power = 100-beta;
+    let Zalp=absZalp;
     if (dmu < 0) {
         Zalp = -Zalp;
         Zbet = -Zbet;
@@ -286,22 +295,22 @@ function changeTestType(ttype) {
 
 // p-value for normal distribution: equivalent to R's pnorm(-z)
 function pnorm(z) {
-  var x = Math.SQRT1_2*Math.abs(z);
+  let x = Math.SQRT1_2*Math.abs(z);
   
   // compute erfc(x) using an approximation formula (max rel error = 1.2e-7) 
   // see https://en.wikipedia.org/wiki/Error_function#Numerical_approximation
-  var t = 1.0/(1+0.5*x);
-  var t2 = t*t;
-  var t3 = t2*t; 
-  var t4 = t2*t2;
-  var t5 = t2*t3; 
-  var t6 = t3*t3; 
-  var t7 = t3*t4;
-  var t8 = t4*t4;
-  var t9 = t4*t5;
-  var tau = -x*x - 1.26551223 + 1.00002368*t + 0.37409196*t2 + 0.09678418*t3 - 0.18628806*t4 + 0.27886807*t5 - 1.13520398*t6 + 1.48851587*t7 - 0.82215223*t8 + 0.17087277*t9;
+  let t = 1.0/(1+0.5*x);
+  let t2 = t*t;
+  let t3 = t2*t; 
+  let t4 = t2*t2;
+  let t5 = t2*t3; 
+  let t6 = t3*t3; 
+  let t7 = t3*t4;
+  let t8 = t4*t4;
+  let t9 = t4*t5;
+  let tau = -x*x - 1.26551223 + 1.00002368*t + 0.37409196*t2 + 0.09678418*t3 - 0.18628806*t4 + 0.27886807*t5 - 1.13520398*t6 + 1.48851587*t7 - 0.82215223*t8 + 0.17087277*t9;
 
-  var p = 0.5*t*Math.exp(tau);
+  let p = 0.5*t*Math.exp(tau);
 
   if (z < 0) {
      p = 1-p;
@@ -323,9 +332,9 @@ function qnorm(p) {
   }
 
   // Set accuracy parameter 
-  var eps = 1.e-6;
+  let eps = 1.e-6;
   
-  var pval = p;
+  let pval = p;
   if (p > 0.5) {
      pval = 1-p;
   }
@@ -339,17 +348,17 @@ function qnorm(p) {
   // The lower bound below comes from setting b=2.
   // Upper bound is multiplied by a safety factor 1.01; 
   // lower bound is multiplied by a safety factor 0.99.
-  var sqrt_2pioe = 1.5203467;
-  var min_arg = 2*pval*sqrt_2pioe;
-  var minz = 0.0;
+  let sqrt_2pioe = 1.5203467;
+  let min_arg = 2*pval*sqrt_2pioe;
+  let minz = 0.0;
   if (min_arg < 1.0) {
      minz = 0.99*Math.sqrt( -Math.log(min_arg) );
   }
-  var maxz = 1.01*Math.sqrt( -2*Math.log(2*pval) );
-  var z = 0.5*(minz+maxz);
+  let maxz = 1.01*Math.sqrt( -2*Math.log(2*pval) );
+  let z = 0.5*(minz+maxz);
 
   while (maxz-minz > eps) {
-    var pz = pnorm(z);
+    let pz = pnorm(z);
     if (pz > pval) { 
       minz = z;
     } else {
@@ -366,29 +375,29 @@ function qnorm(p) {
 
 // Clear canvas
 function clearCanvas() {
-  var Canvas = document.getElementById('graph');
-  var Ctx = Canvas.getContext('2d');
+  let Canvas = document.getElementById('graph');
+  let Ctx = Canvas.getContext('2d');
   Ctx.clearRect(0, 0, Canvas.width, Canvas.height);
 }
 
 // Draw two Gaussian curves and add shades
 function drawCurve(Zalp, ttype) {
-  var Canvas = document.getElementById('graph'); 
-  var Ctx = null;
-  var Width = Canvas.width;
-  var Height = Canvas.height;
+  let Canvas = document.getElementById('graph'); 
+  let Ctx = null;
+  let Width = Canvas.width;
+  let Height = Canvas.height;
   // set max and min for x and z
-  var w = 1.2*Deffect;
-  var maxX = Math.max(0,dmu) + w, minX = Math.min(0,dmu)-w;
-  var maxZ = maxX/SE, minZ = minX/SE;
+  let w = 1.2*Deffect;
+  let maxX = Math.max(0,dmu) + w, minX = Math.min(0,dmu)-w;
+  let maxZ = maxX/SE, minZ = minX/SE;
   // deltaZ = spacing for the z ticks
-  var deltaZ = 1;
+  let deltaZ = 1;
   if (maxZ > 3) {
     deltaZ = Math.floor(maxZ/3);
   }
   // max and min of Y
-  var maxY = 1.1;
-  var minY = -0.3;
+  let maxY = 1.1;
+  let minY = -0.3;
     
   if (Canvas.getContext) {
     // Set up the canvas:
@@ -398,16 +407,16 @@ function drawCurve(Zalp, ttype) {
     // Set up graph parameters
     // Note that Width is reduced by 11 to make rooms 
     // for drawing x and z labels outside the plot
-    var gpar = {"minZ":minZ, "maxZ":maxZ, "minY":minY, "maxY":maxY, 
+    let gpar = {"minZ":minZ, "maxZ":maxZ, "minY":minY, "maxY":maxY, 
                 "Width":Width-11, "Height":Height};
       
     // Set up extra parameters for functions DrawAxes and RenderFunction
-    var ZA = dmu/SE;
-    var AxEx = {"deltaZ":deltaZ, "XaxisY":-0.15, "Xtics":[0,ZA], "X":[0,dmu], 
+    let ZA = dmu/SE;
+    let AxEx = {"deltaZ":deltaZ, "XaxisY":-0.15, "Xtics":[0,ZA], "X":[0,dmu], 
                "ZA":ZA};
-    var renderEx0 = {"offset":0, "color":"black"};
-    var renderExA = {"offset":ZA, "color":"blue"};
-    var shadeEx = {"Zalp":Zalp, "ZA":ZA, "ttype":ttype};
+    let renderEx0 = {"offset":0, "color":"black"};
+    let renderExA = {"offset":ZA, "color":"blue"};
+    let shadeEx = {"Zalp":Zalp, "ZA":ZA, "ttype":ttype};
     
     // Draw:
     ShadeCurve(Ctx, fgauss, gpar, shadeEx);
@@ -469,7 +478,7 @@ function YC(y, p) {
 // Modified from http://matt.might.net/articles/rendering-mathematical-functions-in-javascript-with-canvas-html/
 
 // function exp(-x^2/2)
-var fgauss = function(x) {
+let fgauss = function(x) {
   return Math.exp(-x*x*0.5);
 } 
 
@@ -487,8 +496,8 @@ function DrawAxes(Ctx, gpar, epar) {
  Ctx.font="14px Arial";
     
  // setup parameters for the function XC and YC
- var zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
- var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
+ let zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
+ let ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
 
  // Y axis
  //Ctx.beginPath();
@@ -503,10 +512,10 @@ function DrawAxes(Ctx, gpar, epar) {
  Ctx.stroke();
 
  // Z tick marks
- var istart = Math.floor(gpar.minZ/epar.deltaZ);
- for (var i = istart; i*epar.deltaZ < gpar.maxZ; i++) {
+ let istart = Math.floor(gpar.minZ/epar.deltaZ);
+ for (let i = istart; i*epar.deltaZ < gpar.maxZ; i++) {
   Ctx.beginPath();
-  var z = i*epar.deltaZ; 
+  let z = i*epar.deltaZ; 
   if (z > gpar.minZ) {
     Ctx.moveTo(XC(z, zpar),YC(0, ypar)-5);
     Ctx.lineTo(XC(z, zpar),YC(0, ypar)+5);
@@ -524,8 +533,8 @@ function DrawAxes(Ctx, gpar, epar) {
     
  // X axis tick marks
  Ctx.beginPath();
- for (var i=0; i<epar.Xtics.length; i++) {
-     var z = epar.Xtics[i];
+ for (let i=0; i<epar.Xtics.length; i++) {
+     let z = epar.Xtics[i];
      Ctx.moveTo(XC(z, zpar),YC(epar.XaxisY, ypar)-5);
      Ctx.lineTo(XC(z, zpar),YC(epar.XaxisY, ypar)+5);
      Ctx.stroke();  
@@ -537,7 +546,7 @@ function DrawAxes(Ctx, gpar, epar) {
  Ctx.fillText("z", XC(gpar.maxZ, zpar)+3, YC(0,ypar)+4.7);
     
  // X axis label
- // var w = Ctx.measureText("x").width;
+ // let w = Ctx.measureText("x").width;
  Ctx.fillText("x - x",XC(gpar.maxZ, zpar)-27, YC(epar.XaxisY,ypar)+20);
  Ctx.font="12px Serif";
  Ctx.fillText("2",XC(gpar.maxZ, zpar)-19, YC(epar.XaxisY,ypar)+25);
@@ -573,16 +582,16 @@ function DrawAxes(Ctx, gpar, epar) {
 // epar is an object with the properties offset and color: the function 
 // f(x-offset) is plotted with color set by the values of offset and color.
 function RenderFunction(Ctx, f, gpar, epar) {
-  var ZSTEP = (gpar.maxZ-gpar.minZ)/gpar.Width;
-  var first = true;
+  let ZSTEP = (gpar.maxZ-gpar.minZ)/gpar.Width;
+  let first = true;
     
   // setup parameters for the function XC and YC
-  var zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
-  var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
+  let zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
+  let ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
 
   Ctx.beginPath();
-  for (var z = gpar.minZ; z <= gpar.maxZ; z += ZSTEP) {
-   var y = f(z-epar.offset);
+  for (let z = gpar.minZ; z <= gpar.maxZ; z += ZSTEP) {
+   let y = f(z-epar.offset);
    if (first) {
     Ctx.moveTo(XC(z, zpar),YC(y, ypar));
     first = false;
@@ -601,11 +610,11 @@ function RenderFunction(Ctx, f, gpar, epar) {
 function ShadeCurve(Ctx, f, gpar, epar) {
     
 // setup parameters for the function XC and YC
-var zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
-var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
+let zpar = {"minX":gpar.minZ, "rangeX":gpar.maxZ-gpar.minZ, "Width":gpar.Width};
+let ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height};
 
- var npoly = 100;
- var y,z,offset,delta,i;
+ let npoly = 100;
+ let y,z,offset,delta,i;
     
  // For ttype = 2 (two-sided test), draw filled 100-side polygon to the left/right 
  // of -Zalp
@@ -614,7 +623,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
          // Draw to the left of -Zalp and draw only if -Zalp > minZ
          if (-epar.Zalp > gpar.minZ) {
              Ctx.fillStyle = 'red';
-             var z2 = Math.min(gpar.maxZ, -epar.Zalp);
+             let z2 = Math.min(gpar.maxZ, -epar.Zalp);
              delta = (z2 - gpar.minZ)/(npoly-1);
              z = gpar.minZ;
              Ctx.beginPath();
@@ -632,7 +641,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
          // Draw to the right of -Zalp and draw only if -Zalp < maxZ
          if (-epar.Zalp < gpar.maxZ) {
              Ctx.fillStyle = 'red';
-             var z1 = Math.max(gpar.minZ, -epar.Zalp)
+             let z1 = Math.max(gpar.minZ, -epar.Zalp)
              delta = (gpar.maxZ - z1)/(npoly-1);
              z = z1;
              Ctx.beginPath();
@@ -651,7 +660,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
  
  // Draw filled 100-side polygon to the right of Zalp
  // Draw only if Zalp < maxZ
- var Zright = gpar.maxZ;
+ let Zright = gpar.maxZ;
  if (epar.Zalp < gpar.maxZ) {
      if (epar.ZA < 0) {
          offset = epar.ZA;
@@ -663,7 +672,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
          offset = 0;
          Ctx.fillStyle = 'red';
      }
-     var z1 = Math.max(gpar.minZ, epar.Zalp)
+     let z1 = Math.max(gpar.minZ, epar.Zalp)
      delta = (Zright - z1)/(npoly-1);
      Ctx.beginPath();
      Ctx.moveTo(XC(z1, zpar),YC(0, ypar));
@@ -680,7 +689,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
  
  // Draw filled 100-side polygon to the left of Zalp
  // Draw only if Zalp > minZ
- var Zleft = gpar.minZ;
+ let Zleft = gpar.minZ;
  if (epar.Zalp > gpar.minZ) {
      if (epar.ZA < 0) {
          offset = 0;
@@ -692,7 +701,7 @@ var ypar = {"minY":gpar.minY, "rangeY":gpar.maxY-gpar.minY, "Height":gpar.Height
              Zleft = Math.max(-epar.Zalp, gpar.minZ);
          }
      }
-     var z2 = Math.min(gpar.maxZ, epar.Zalp)
+     let z2 = Math.min(gpar.maxZ, epar.Zalp)
      delta = (z2 - Zleft)/(npoly-1);
      Ctx.beginPath();
      Ctx.moveTo(XC(Zleft, zpar),YC(0, ypar));

@@ -46,15 +46,15 @@
 name="lockn" value="1" />lock <span class="var">n</span><sub>1</sub> = <span class="var">n</span><sub>2</sub></p>
 <p><input onchange="changeLockn(0)" type="radio" id="ulockn"
 name="ulockn" value="2" />unlock <span class="var">n</span><sub>1</sub> = <span class="var">n</span><sub>2</sub></p></td>
-    <td style="text-align:center;"><input onmousedown="newN('down',1)" onmouseup="newN('up',1)" id="n1Input" type="range" step="1" /> <br />
+    <td style="text-align:center;"><input onmousedown="newN('down',1)" onmouseup="newN('up',1)" onmousemove="newN('move',1)" movelistener="off" id="n1Input" type="range" step="1" /> <br />
     <span class="var">n</span><sub>1</sub> = <span id="n1"></span></td>
-    <td><input onmousedown="newAlpha('down')" onmouseup="newAlpha('up')" id="alphaInput" type="range" step="1" /></td>
+    <td><input onmousedown="newAlpha('down')" onmouseup="newAlpha('up')" onmousemove="newAlpha('move')"  movelistener="off" id="alphaInput" type="range" step="1" /></td>
     <td rowspan="2"><span class="greek">&beta;</span> = <span id="beta"></span></td>
     <td rowspan="2">power = 1-<span class="greek">&beta;</span> = <span id="power"></span></td>
 </tr>
 
 <tr>
-    <td style="text-align:center;"><input onmousedown="newN('down',2)" onmouseup="newN('up',2)" id="n2Input" type="range" step="1" /> <br />
+    <td style="text-align:center;"><input onmousedown="newN('down',2)" onmouseup="newN('up',2)" onmousemove="newN('move',2)" movelistener="off" id="n2Input" type="range" step="1" /> <br />
     <span class="var">n</span><sub>2</sub> = <span id="n2"></span></td>
     <td style="text-align:center;"><span class="greek">&alpha;</span> = <span id="alpha"></span></td>
 </tr>
